@@ -1,4 +1,5 @@
 import SimpleITK as sitk
+import cv2
 import numpy as np
 
 
@@ -58,6 +59,21 @@ def adjust_image_spacing(image):
     return None
 
 
+def is_binary(image_array):
+    """
+    Cheching if the provided image is binary.
+
+    Args:
+        image_array: np.ndarray representing the 2D image
+
+    Returns:
+        True if the image is binary, False otherwise
+    """
+    bool_binary = np.all(set(image_array.flatten()) <= set([0, 1]))
+    
+    return bool_binary
+
+
 def resize_image(image_array):
     """
     Resizing the input image to the desired size.
@@ -66,8 +82,14 @@ def resize_image(image_array):
         image_array: np.ndarray representing the image
 
     Returns:
-        np.nd
+        np.ndarray representing the resized image resized to be 256x256
     """
+    if is_binary(image_array) == True:
+        resized_image = cv2.resize(image_array, dsize=(256, 256), interpolation = cv2.INTER_NEAREST)
+    else:
+        resized_image = cv2.resize(image_array, dsize=(256, 256), interpolation = cv2.INTER_CUBIC)
+
+    return resized_image
 
      
 

@@ -41,9 +41,9 @@ def test_normalize_image():
     image = np.random.randint(0, 256, size=(10, 10), dtype=np.uint8)
     normalized_image = PPF.normalize_gray_levels(image.copy())
 
-    assert isinstance(normalized_image, np.ndarray),                            "Output must be a NumPy array."
-    assert normalized_image.shape == image.shape,                               "Output shape must match input shape."
-    assert np.all((normalized_image >= 0) & (normalized_image <= 1)),           "Values must be between 0 and 1."
+    assert isinstance(normalized_image, np.ndarray)                           
+    assert normalized_image.shape == image.shape                              
+    assert np.all((normalized_image >= 0) & (normalized_image <= 1))           
 
 
 def test_adjust_image_spacing():
@@ -67,6 +67,64 @@ def test_adjust_image_spacing():
     PPF.adjust_image_spacing(test_image)
 
     assert test_image.GetSpacing() == (1, 1)
+
+
+def test_is_binary():
+    """
+    Testing that the function is_binary() identifies binary images 
+
+    GIVEN: a np.ndarray representing the 2D image
+    WHEN: it is passed as an argument to is_binary()
+    THEN: The output is True if the image is binary, False otherwise
+    """
+    np.random.seed(10)
+
+    binary_image = np.random.choice([0, 1], size=(256, 256))
+    non_binary_image = np.random.rand(256, 256)
+
+    assert PPF.is_binary(binary_image) == True
+    assert PPF.is_binary(non_binary_image) == False
+
+
+def test_resize_image_correct_dimension():
+    """
+    Testing the output dimension of the function resize_image()
+
+    GIVEN: a np.ndarray representing the 2D image
+    WHEN: it is passed as an argument to resize_image()
+    THEN: The output is an array with shape (256, 256)
+    """
+    np.random.seed(10)
+
+    random_image_1 = np.random.rand(500, 500)
+    random_image_2 = np.random.rand(100, 100)
+    random_image_3 = np.random.rand(700, 100)
+
+    assert PPF.resize_image(random_image_1).shape == (256, 256)
+    assert PPF.resize_image(random_image_2).shape == (256, 256)
+    assert PPF.resize_image(random_image_3).shape == (256, 256)
+
+
+
+def test_resize_binary_image():
+    """
+    Testing that when i apply resize_image() method on a binary image
+    the output is still binary
+
+    GIVEN: a binary np.ndarray containing only 0 and 1
+    WHEN: it is passed as an argument to resize_image()
+    THEN: the output is a binary ndarray
+    """
+    np.random.seed(10)
+
+    binary_image_1 = np.random.choice([0, 1], size=(500, 500))
+    binary_image_2 = np.random.choice([0, 1], size=(100, 100))
+    binary_image_3 = np.random.choice([0, 1], size=(600, 200))
+
+    assert PPF.is_binary(PPF.resize_image(binary_image_1)) == True
+    assert PPF.is_binary(PPF.resize_image(binary_image_2)) == True
+    assert PPF.is_binary(PPF.resize_image(binary_image_3)) == True
+
 
 
 
