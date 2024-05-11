@@ -91,7 +91,26 @@ def resize_image(image_array):
 
     return resized_image
 
-     
+
+def pre_processing(sitk_image):
+    """
+    Performs the preprocessing operation on the raw data
+    
+    Args: 
+        sitk_image: SimpleITK image object containing axial, coronal and sagittal scans.
+
+    Returns:
+        A dictionary where the keys are the indexes of the axial slices and the values are
+        256x256 np.ndarrays representing the single slices, with gray levels normalized in the 
+        range [0, 1]. 
+    """
+    slices = get_axial_slices(sitk_image)
+
+    for slice_index in range(len(slices)):
+        slices[slice_index] = normalize_gray_levels(slices[slice_index])
+        slices[slice_index] = resize_image(slices[slice_index])
+
+    return slices 
 
 
 

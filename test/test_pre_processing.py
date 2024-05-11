@@ -1,9 +1,14 @@
 import random
 import SimpleITK as sitk
 import numpy as np
+import pytest
 
-import libs.pre_processing_functions as PPF
-
+from libs.pre_processing_functions import get_axial_slices
+from libs.pre_processing_functions import normalize_gray_levels
+from libs.pre_processing_functions import resize_image
+from libs.pre_processing_functions import is_binary
+from libs.pre_processing_functions import adjust_image_spacing
+from libs.pre_processing_functions import pre_processing
 
 def test_get_axial_slices():
     """
@@ -21,7 +26,7 @@ def test_get_axial_slices():
         test_image_depth = int(random.uniform(1, 10))
         test_image = sitk.Image(test_image_width, test_image_height, test_image_depth, sitk.sitkUInt8)
         
-        slices = PPF.get_axial_slices(test_image)
+        slices = get_axial_slices(test_image)
 
         assert isinstance(slices, dict)
         assert isinstance(slices[0], np.ndarray)
@@ -39,7 +44,7 @@ def test_normalize_image():
     np.random.seed(10)
 
     image = np.random.randint(0, 256, size=(10, 10), dtype=np.uint8)
-    normalized_image = PPF.normalize_gray_levels(image.copy())
+    normalized_image = normalize_gray_levels(image.copy())
 
     assert isinstance(normalized_image, np.ndarray)                           
     assert normalized_image.shape == image.shape                              
@@ -64,7 +69,7 @@ def test_adjust_image_spacing():
     test_image.SetSpacing(test_image_spacing)
     
 
-    PPF.adjust_image_spacing(test_image)
+    adjust_image_spacing(test_image)
 
     assert test_image.GetSpacing() == (1, 1)
 
@@ -82,8 +87,8 @@ def test_is_binary():
     binary_image = np.random.choice([0, 1], size=(256, 256))
     non_binary_image = np.random.rand(256, 256)
 
-    assert PPF.is_binary(binary_image) == True
-    assert PPF.is_binary(non_binary_image) == False
+    assert is_binary(binary_image) == True
+    assert is_binary(non_binary_image) == False
 
 
 def test_resize_image_correct_dimension():
@@ -100,9 +105,9 @@ def test_resize_image_correct_dimension():
     random_image_2 = np.random.rand(100, 100)
     random_image_3 = np.random.rand(700, 100)
 
-    assert PPF.resize_image(random_image_1).shape == (256, 256)
-    assert PPF.resize_image(random_image_2).shape == (256, 256)
-    assert PPF.resize_image(random_image_3).shape == (256, 256)
+    assert resize_image(random_image_1).shape == (256, 256)
+    assert resize_image(random_image_2).shape == (256, 256)
+    assert resize_image(random_image_3).shape == (256, 256)
 
 
 
@@ -121,9 +126,9 @@ def test_resize_binary_image():
     binary_image_2 = np.random.choice([0, 1], size=(100, 100))
     binary_image_3 = np.random.choice([0, 1], size=(600, 200))
 
-    assert PPF.is_binary(PPF.resize_image(binary_image_1)) == True
-    assert PPF.is_binary(PPF.resize_image(binary_image_2)) == True
-    assert PPF.is_binary(PPF.resize_image(binary_image_3)) == True
+    assert is_binary(resize_image(binary_image_1)) == True
+    assert is_binary(resize_image(binary_image_2)) == True
+    assert is_binary(resize_image(binary_image_3)) == True
 
 
 
