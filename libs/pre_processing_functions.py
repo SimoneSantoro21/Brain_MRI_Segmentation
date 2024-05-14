@@ -35,12 +35,15 @@ def normalize_gray_levels(image_array):
     Returns:
         np.ndarray representing the same image but with normalized gray levels
     """
-    min_value = np.min(image_array)
-    max_value = np.max(image_array)
+    if np.any(image_array != 0):
+        min_value = np.min(image_array)
+        max_value = np.max(image_array)
 
-    normalized_image = (image_array - min_value) / (max_value - min_value)
+        normalized_image = (image_array - min_value) / (max_value - min_value)
 
-    return normalized_image
+        return normalized_image
+    else:
+        return image_array
 
 
 def adjust_image_spacing(image):
