@@ -93,3 +93,53 @@ class DownSample(nn.Module):
         pooled = self.pool(convolved)
 
         return convolved, pooled
+
+
+
+class UpSample(nn.Module):
+    """
+    A PyTorch module that performs the upsampling operation on an input tensor.
+
+    This module first applies a 2x2 transposed convolution to perform the upsampling, then, it 
+    performs a 'DoubleConvolution' operation. 
+
+    The module returns the output of double convolution computed on the upsampled tensor
+    concatenated with the respective feature maps of the encoder (Skip connections).
+    """
+
+    def __init__(self, in_channels, out_channels):
+        """ 
+        Initializes the `DoubleConvolution` module.
+
+        Args:
+            in_channels (int): Number of channels in the input tensor.
+            out_channels (int): Number of channels in the output tensor.
+
+        Attributes:
+            up: Defines upsampling method as a 2D transposed convolution that returns
+                a tensor with half the number of initial channels, a 2x2 kernel and stride of 2
+            conv: Creates an instance of the DoubleConvolution class
+        """
+        super().__init__()
+        self.up = nn.ConvTranspose2d(in_channels, in_channels//2, kernel_size = 2, stride = 2)
+        self.conv = DoubleConvolution(in_channels, out_channels)
+
+
+    def forward(self, x1, x2):
+        """
+        Performs the upsampling and the double convolution operation 
+        on the input tensor with skip connections.
+
+        Args:
+            x1 (torch.Tensor): Input tensor to upsample.
+            x2 (torch.Tensor): Skip connection to concatenate.
+
+        Returns:
+            torch.Tensor: Obtained applying the double convolution to
+                        the tensor given by the concatenation of x2 with
+                        the upsampled x1 along the channel dimension.
+        """
+        x1 = self.up(x1)
+        x = torch.cat([x1, x2], dim = 1)
+
+        return self.conv(x)
