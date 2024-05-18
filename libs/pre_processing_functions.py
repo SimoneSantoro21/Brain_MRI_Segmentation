@@ -40,7 +40,6 @@ def normalize_gray_levels(image_array):
         max_value = np.max(image_array)
 
         normalized_image = (image_array - min_value) / (max_value - min_value)
-
         return normalized_image
     else:
         return image_array
@@ -114,7 +113,3 @@ def pre_processing(sitk_image):
         slices[slice_index] = resize_image(slices[slice_index])
 
     return slices 
-
-
-
-    
