@@ -2,6 +2,7 @@ import torch
 from libs.U_Net_components import DoubleConvolution
 from libs.U_Net_components import DownSample
 from libs.U_Net_components import UpSample
+from libs.U_Net import UNet
 
 def test_DoubleConvolution_output():
     """
@@ -151,6 +152,34 @@ def test_UpSample_output_type():
     output = upsample(test_tensor1, test_tensor2)
 
     assert output.dtype == torch.float32
+
+
+def test_U_Net_output_shape():
+    """
+    Testing the output shape of the segmentation obtained 
+    by the UNet model.
+
+    GIVEN: A torch.Tensor of shape (batch_size, in_channels, height, width) representing 
+        the image to segment
+    WHEN: Segmentation is performed by UNet model
+    THEN: The output is a torch.Tensor of shape (batch_size, num_classes, height, width)
+        representing the final segmentation mask
+    """
+    seed = 42
+    torch.manual_seed(seed)
+
+    batch_size = 2
+    height, width = 256, 256
+    in_channels = 1
+    num_classes = 2
+
+    test_tensor = torch.randn(batch_size, in_channels, height, width).float()
+    unet = UNet(in_channels, num_classes)
+    
+    output = unet(test_tensor)
+
+    assert output.shape == (2, num_classes, height, width)
+    
 
 
 
