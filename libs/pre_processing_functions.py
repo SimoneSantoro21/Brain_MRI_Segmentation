@@ -1,6 +1,7 @@
 import SimpleITK as sitk
 import cv2
 import numpy as np
+import torch
 
 
 def get_axial_slices(image):
@@ -16,9 +17,10 @@ def get_axial_slices(image):
     """
 
     slices = {}
-    image_array = sitk.GetArrayFromImage(image)
+    image_oriented = sitk.DICOMOrient(image, 'LPS')
+    image_array = sitk.GetArrayFromImage(image_oriented)
 
-    for slice_index in range(image.GetDepth()):
+    for slice_index in range(image_oriented.GetDepth()):
         slice_array = image_array[slice_index]
         slices[slice_index] = slice_array
 
@@ -103,7 +105,7 @@ def pre_processing(sitk_image):
 
     Returns:
         A dictionary where the keys are the indexes of the axial slices and the values are
-        256x256 np.ndarrays representing the single slices, with gray levels normalized in the 
+        (1, 256, 256) Torch tensors representing the single slices, with gray levels normalized in the 
         range [0, 1]. 
     """
     slices = get_axial_slices(sitk_image)
@@ -111,5 +113,6 @@ def pre_processing(sitk_image):
     for slice_index in range(len(slices)):
         slices[slice_index] = normalize_gray_levels(slices[slice_index])
         slices[slice_index] = resize_image(slices[slice_index])
+        slices[slice_index] = torch.from_numpy(slices[slice_index]).unsqueeze(0)
 
     return slices 
