@@ -1,6 +1,7 @@
 import os
 import random
 import SimpleITK as sitk
+import torch
 
 from libs.dataset import FLAIRDataset
 
@@ -48,3 +49,18 @@ def test_getitem_output(data_dir="data"):
     assert isinstance(patient_data, dict)
     assert "FLAIR" in patient_data.keys()
     assert "LESION" in patient_data.keys()
+
+
+def test_getitem_output_filter(data_dir="data"):
+    """
+    Tests that the __getitem__ method's output only contains scans in which there is at least
+    one lesion.
+
+    GIVEN: A patient index
+    WHEN: __getitem__() method is called
+    THEN: Every LESION scan of the patient contains at least a pixel of value 1
+    """
+    dataset = FLAIRDataset(data_dir)
+    patient_data = dataset[0]
+    for lesion_index in range(len(patient_data["LESION"])):
+        assert torch.any(patient_data["LESION"][lesion_index])

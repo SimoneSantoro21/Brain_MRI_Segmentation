@@ -1,8 +1,7 @@
 import os
 import SimpleITK as sitk
 from torch.utils.data.dataset import Dataset
-from torchvision import transforms
-import numpy as np
+import torch
 
 import libs.pre_processing_functions as PPF
 
@@ -43,10 +42,12 @@ class FLAIRDataset(Dataset):
             index = Integer index of the patient in the dataset.
 
         Returns:
-            A dictionary containing flair images and segmentation masks as numpy arrays.
+            A dictionary containing flair images and segmentation masks as Pytorch Tensors.
         """
         patient_id = self.patient_ids[index - 1]
-        patient_data = self.load_patient_data(patient_id)
+        unfiltered_patient_data = self.load_patient_data(patient_id)
+        patient_data = self.filter_slices(unfiltered_patient_data)
+        print(patient_id)
 
         return patient_data
     
@@ -82,6 +83,29 @@ class FLAIRDataset(Dataset):
                 return None
 
         return patient_data
+    
+    
+    def filter_slices(self, patient_data):
+        """
+        Filters slices to only include those with non-zero lesions and reassigns the keys.
+
+        Args:
+            patient_data: Dictionary containing FLAIR and LESION slices.
+
+        Returns:
+            Dictionary with filtered slices containing lesions, with keys starting from 0.
+        """
+        filtered_slices = {'FLAIR': {}, 'LESION': {}}
+        new_slice_index = 0
+
+        for slice_idx, lesion_slice in patient_data['LESION'].items():
+            lesion_slice = lesion_slice.clone().detach()  # Convert to torch tensor if not already
+            if torch.any(lesion_slice):  # Check if any element is non-zero
+                filtered_slices['FLAIR'][new_slice_index] = patient_data['FLAIR'][slice_idx]
+                filtered_slices['LESION'][new_slice_index] = lesion_slice
+                new_slice_index += 1
+
+        return filtered_slices
 
 
 
