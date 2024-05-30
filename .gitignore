@@ -1,5 +1,14 @@
-#data directory
+#data directories
 data/
+data_BACKUP/
+org_data/
+selected_data/
+
+#model
+model/
+
+#wandb directory
+wandb/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
