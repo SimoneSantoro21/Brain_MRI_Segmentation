@@ -64,6 +64,7 @@ class UNet(nn.Module):
         upsampled_4 = self.up_convolution_4(upsampled_3, convolved_1)
 
         output = self.out(upsampled_4)
+        output = nn.Sigmoid()(output)
         
         return output
         
