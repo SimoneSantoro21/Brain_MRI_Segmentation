@@ -19,15 +19,19 @@ class DoubleConvolution(nn.Module):
 
         Attributes:
             double_conv_operation (nn.Sequential): A sequential container holding
-                the two convolutional layers with ReLU activations. This attribute
-                performs the double convolution operation on the input tensor.
+                the two convolutional layers followed by batch normalization and ReLU activations. 
+                In the end, a drop out layer makes the model an approximated Bayesian network. 
+                This attribute performs the double convolution operation on the input tensor.
         """
         super().__init__()
         self.double_conv_operation = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, kernel_size = 3, padding = 1),
+            nn.BatchNorm2d(out_channels),
             nn.ReLU(),
             nn.Conv2d(out_channels, out_channels, kernel_size = 3, padding = 1),
-            nn.ReLU()
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(),
+            nn.Dropout2d(p=0.1)
         )
 
 
