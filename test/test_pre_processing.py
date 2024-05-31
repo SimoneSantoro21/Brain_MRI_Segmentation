@@ -2,6 +2,7 @@ import random
 import SimpleITK as sitk
 import numpy as np
 import pytest
+import torch
 
 from libs.pre_processing_functions import get_axial_slices
 from libs.pre_processing_functions import normalize_gray_levels
@@ -110,7 +111,6 @@ def test_resize_image_correct_dimension():
     assert resize_image(random_image_3).shape == (256, 256)
 
 
-
 def test_resize_binary_image():
     """
     Testing that when i apply resize_image() method on a binary image
@@ -129,6 +129,23 @@ def test_resize_binary_image():
     assert is_binary(resize_image(binary_image_1)) == True
     assert is_binary(resize_image(binary_image_2)) == True
     assert is_binary(resize_image(binary_image_3)) == True
+
+
+def test_preprocessing_output_shape():
+    """
+    Testing the type and shape of pre_processing function output.
+
+    GIVEN: A random 2D simpleITK image object 
+    WHEN: pre_processing() function is applied
+    THEN: The output is a Torch Tensor of shape (1, 256, 256)
+    """
+    size = (500, 500)
+    random_array = np.random.randint(0, 256, size, dtype=np.uint8)
+    random_image = sitk.GetImageFromArray(random_array)
+    processed_image = pre_processing(random_image)
+
+    assert isinstance(processed_image, torch.Tensor)
+    assert processed_image.shape == (1, 256, 256)
 
 
 

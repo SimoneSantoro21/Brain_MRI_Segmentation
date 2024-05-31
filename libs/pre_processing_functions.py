@@ -101,18 +101,16 @@ def pre_processing(sitk_image):
     Performs the preprocessing operation on the raw data
     
     Args: 
-        sitk_image: SimpleITK image object containing axial, coronal and sagittal scans.
+        sitk_image: SimpleITK image object containing an axial scan.
 
     Returns:
-        A dictionary where the keys are the indexes of the axial slices and the values are
-        (1, 256, 256) Torch tensors representing the single slices, with gray levels normalized in the 
-        range [0, 1]. 
+        An Torch tensor of size (1, 256, 256) representing the scan, with gray levels
+        normalized in the range [0, 1]. 
     """
-    slices = get_axial_slices(sitk_image)
+    image_array = sitk.GetArrayFromImage(sitk_image)
+    
+    processed_image = normalize_gray_levels(image_array)
+    processed_image = resize_image(processed_image)
+    torch_image = torch.from_numpy(processed_image).unsqueeze(0)
 
-    for slice_index in range(len(slices)):
-        slices[slice_index] = normalize_gray_levels(slices[slice_index])
-        slices[slice_index] = resize_image(slices[slice_index])
-        slices[slice_index] = torch.from_numpy(slices[slice_index]).unsqueeze(0)
-
-    return slices 
+    return torch_image 
