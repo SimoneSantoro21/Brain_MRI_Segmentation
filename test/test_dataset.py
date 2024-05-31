@@ -8,10 +8,14 @@ from libs.dataset import FLAIRDataset
 
 def test_init_missing_data():
     """
-    Tests that the FLAIRDataset class raises a FileNotFoundError when the provided data directory doesn't exist.
+    Tests that the FLAIRDataset class raises a FileNotFoundError when the provided data 
+    directory doesn't exist.
+
+    GIVEN: A path that does not exist
+    WHEN: It is used to initialize a FLAIRDataset object
+    THEN: A FileNotFoundError is raised.
     """
-    # Simulate missing data directory (assuming data is in the same directory)
-    data_dir = "invalid_path"  # Replace with a non-existent directory
+    data_dir = "invalid_path" 
     try:
         FLAIRDataset(data_dir)
         assert False, "Expected FileNotFoundError"
@@ -19,48 +23,36 @@ def test_init_missing_data():
         pass
 
 
-def test_len_dataset(data_dir = "data"):
+def test_len_dataset(data_dir = "org_data"):
     """
-    Tests that the length of the dataset (number of patients) matches the
-    number of subdirectories within the "data" directory (excluding non-data folders).
+    Tests that the length of the dataset matches the number of scans contained
+    in both the FLAIR and LESION subdirectories.
 
-    GIVEN: A data directory where the patient folders start with "Patient-"
+    GIVEN: A data directory
     WHEN: An instance of FLAIRDataset is created
-    THEN: The lenght of the dataset is equal to the number of patient directories
+    THEN: The lenght of the dataset is equal to the number of scans
     """
     dataset = FLAIRDataset(data_dir)
+    flair_data = os.path.join(data_dir, "FLAIR")
+    lesion_data = os.path.join(data_dir, "LESION")
 
-    # Assuming subdirectory names start with "Patient-" (modify if needed)
-    patient_folders = [f for f in os.listdir(data_dir) if f.startswith("Patient-")]
-    assert len(dataset) == len(patient_folders)
+    flair_scans = [i for i in os.listdir(flair_data)]
+    lesion_scans = [f for f in os.listdir(lesion_data)]
+
+    assert len(dataset) == len(flair_scans)
+    assert len(dataset) == len(lesion_scans)
 
 
-def test_getitem_output(data_dir="data"):
+def test_getitem_output(data_dir="org_data"):
     """
-    Tests that the __getitem__ method returns a dictionary containing FLAIR and LESION data 
-    for the requested patient (index). 
+    Tests that the __getitem__ method returns a tuple containing FLAIR and LESION data 
+    for the requested slice (index). 
   
-    GIVEN: A patient index 
+    GIVEN: A slice index 
     WHEN: __getitem__() method is called
-    THEN: The output is a dictionary containing both FLAIR and LESION
+    THEN: The output is a tuple containing both FLAIR and LESION
     """
     dataset = FLAIRDataset(data_dir)
-    patient_data = dataset[0]
-    assert isinstance(patient_data, dict)
-    assert "FLAIR" in patient_data.keys()
-    assert "LESION" in patient_data.keys()
-
-
-def test_getitem_output_filter(data_dir="data"):
-    """
-    Tests that the __getitem__ method's output only contains scans in which there is at least
-    one lesion.
-
-    GIVEN: A patient index
-    WHEN: __getitem__() method is called
-    THEN: Every LESION scan of the patient contains at least a pixel of value 1
-    """
-    dataset = FLAIRDataset(data_dir)
-    patient_data = dataset[0]
-    for lesion_index in range(len(patient_data["LESION"])):
-        assert torch.any(patient_data["LESION"][lesion_index])
+    data = dataset[0]
+    assert isinstance(data, tuple)
+    assert len(data) == 2

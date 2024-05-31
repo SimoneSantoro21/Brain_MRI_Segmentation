@@ -11,102 +11,72 @@ class FLAIRDataset(Dataset):
     image (LESION) with SimpleITK loading.
 
     This class expects a specific data organization within the provided root directory. 
-    Each subdirectory should be named 'Patient-(patient_id)' and contain two files:
+    Inside the data directory there should be two folders: "FLAIR" and "LESION":
 
-      * FLAIR_rot.nii: The FLAIR-MRI scan in Nifti format.
-      * LESION_rot.nii: The corresponding lesion segmentation mask in Nifti format.
+      * FLAIR: Containing all the 2D axial scans in Nifti format.
+      * LESION: The corresponding lesion segmentation masks in Nifti format.
     """
 
     def __init__(self, root_path, test = False):
         """
-        Initialize the dataset with patient IDs, scan types and root_path
-        of the directory where the images are stored.
+        Initialize the dataset with scan indexes, scan types and root_path
+        of the directories where the images are stored.
         """
         self.root_path = root_path
-        self.patient_ids = [i for i in range(1, len(os.listdir(root_path)) + 1)]
+        self.FLAIR_path = os.path.join(root_path, "FLAIR") 
+        self.LESION_path = os.path.join(root_path, "LESION") 
+        self.scan_indexes = [i for i in range(0, len(os.listdir(self.FLAIR_path)))]
         self.scan_types = ["FLAIR", "LESION"]
 
     
     def __len__(self):
         """
-        Returns the total number of patients (data samples)
+        Returns the total number of FLAIR images (data samples)
         """
-        return len(self.patient_ids)
+        return len(self.scan_indexes)
     
 
     def __getitem__(self, index):
         """
-        Loads and returns the FLAIR-MRI and LESION data for a specific patient (index).
+        Loads and returns the FLAIR-MRI and LESION data for a specific index.
 
         Args:
-            index = Integer index of the patient in the dataset.
+            index = Integer index of the scan.
 
         Returns:
-            A dictionary containing flair images and segmentation masks as Pytorch Tensors.
+            A tuple containing flair scan and the corresponding segmentation mask 
+            as Pytorch Tensors.
         """
-        patient_id = self.patient_ids[index - 1]
-        unfiltered_patient_data = self.load_patient_data(patient_id)
-        patient_data = self.filter_slices(unfiltered_patient_data)
-        print(patient_id)
+        scan_data = self.load_patient_data(index)
 
-        return patient_data
-    
+        return scan_data["FLAIR"], scan_data["LESION"]
 
-    def load_patient_data(self, patient_id):
+
+    def load_patient_data(self, index):
         """
         Loads MRI scans for a specific patientusing SimpleITK
 
         Args:
-            patient_id: Integer representing the patient ID.
+            index: Integer representing the patient ID.
 
         Returns:
-            A dictionary containing flair and segmentation masks as Numpy arrays
+            A dictionary containing flair and segmentation masks as Torch tensors
             or None if the patient data is not found
         """
-        patient_folder = os.path.join(self.root_path, "Patient-"+str(patient_id))
-
-        if not os.path.isdir(patient_folder):
-            print(f"Patient data not found for ID: {patient_id}")
-            return None
-
-        patient_data = {}
+        scan_data = {}
 
         for scan_type in self.scan_types:
-            filepath = os.path.join(patient_folder, f"{scan_type}_rot.nii")
+            scan_path = os.path.join(self.root_path, scan_type, (f"{scan_type}_{index}.nii"))
 
-            if os.path.isfile(filepath):
-                scan_img = sitk.ReadImage(filepath)
-                processed_axial_slices = PPF.pre_processing(scan_img) 
-                patient_data[scan_type] = processed_axial_slices
+            if os.path.isfile(scan_path):
+                scan_img = sitk.ReadImage(scan_path)
+                processed_img = PPF.pre_processing(scan_img) 
+                scan_data[scan_type] = processed_img
             else:
-                print(f"Scan file missing for {scan_type} in patient {patient_id}")
+                print(f"Scan file missing for {scan_type} index {index}")
                 return None
 
-        return patient_data
-    
-    
-    def filter_slices(self, patient_data):
-        """
-        Filters slices to only include those with non-zero lesions and reassigns the keys.
-
-        Args:
-            patient_data: Dictionary containing FLAIR and LESION slices.
-
-        Returns:
-            Dictionary with filtered slices containing lesions, with keys starting from 0.
-        """
-        filtered_slices = {'FLAIR': {}, 'LESION': {}}
-        new_slice_index = 0
-
-        for slice_idx, lesion_slice in patient_data['LESION'].items():
-            lesion_slice = lesion_slice.clone().detach()  # Convert to torch tensor if not already
-            if torch.any(lesion_slice):  # Check if any element is non-zero
-                filtered_slices['FLAIR'][new_slice_index] = patient_data['FLAIR'][slice_idx]
-                filtered_slices['LESION'][new_slice_index] = lesion_slice
-                new_slice_index += 1
-
-        return filtered_slices
-
+        return scan_data
 
 
             
