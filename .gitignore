@@ -170,3 +170,47 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+
+#Latex auxiliary files
+# Core LaTeX auxiliary files
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+
+# Intermediate documents (usually not needed in version control)
+*.dvi
+*.xdv
+*-converted-to.*
+
+# Bibliography auxiliary files (bibtex, biber, etc.)
+*.bbl
+*.bcf
+*.blg
+*-blx.aux
+*-blx.bib
+
+# Build tool auxiliary files (latexmk, etc.)
+*.fdb_latexmk
+*.synctex
+*.synctex(busy)
+*.synctex.gz
+*.synctex.gz(busy)
+
+# Build tool directories (latexrun, etc.)
+latex.out/
+
+# Other auxiliary files from common packages
+# (Uncomment these if you use the respective packages)
+#*.alg  # algorithms
+#*.nav  # beamer
+#*.run.xml # biber
+#*.blg  # biblatex
