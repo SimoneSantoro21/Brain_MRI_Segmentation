@@ -171,7 +171,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-
+*.pdf
 #Latex auxiliary files
 # Core LaTeX auxiliary files
 *.aux
