@@ -22,7 +22,7 @@ class FocalLoss(nn.Module):
         self.gamma = gamma
         self.reduction = reduction
 
-        valid_reductions = ['none', 'mean']
+        valid_reductions = ['none', 'mean', 'sum']
         if self.reduction not in valid_reductions:
             raise ValueError(f"Invalid reduction mode: {self.reduction}. "
                              f"Valid options are: {valid_reductions}")
@@ -32,12 +32,14 @@ class FocalLoss(nn.Module):
         """
         Performs the calculation of the focal loss
         """
-        BCE_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction='none')
-        # Compute the probability for the true class
-        pt = torch.exp(-BCE_loss)
-        focal_loss = self.alpha * (1 - pt) ** self.gamma * BCE_loss
+        binary_cross_entropy = F.binary_cross_entropy(inputs, targets, reduction='none')
+
+        pt = torch.exp(-binary_cross_entropy)  # Probabilities of the correct class
+        focal_loss = self.alpha * torch.pow((1 - pt), self.gamma) * binary_cross_entropy
 
         if self.reduction == 'mean':
             return focal_loss.mean()
+        elif self.reduction == 'sum':
+            return focal_loss.sum()
         elif self.reduction == 'none':
             return focal_loss
