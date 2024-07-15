@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import wandb
+import os
 
 from libs.dataset import FLAIRDataset
 from libs.U_Net import UNet
@@ -21,32 +22,33 @@ wandb.init(
     "Dropout": 0.1,
     "dataset": "FLAIR dataset",
     "epochs": 100,
-    "batch size": 8,
+    "batch size": 4,
     "Loss function": "Focal",
     "Alpha": 0.25,
     "gamma": 2,
     "Reduction": "Mean",
     "Optimizer": "AdamW",
-    "Layers": 4
+    "Layers": 5
     }
 )
 
 
 def train():
     LEARNING_RATE = 1e-4
-    BATCH_SIZE = 8
-    EPOCHS = 100
-    DATA_PATH = "org_data"
-    MODEL_SAVE_PATH = "C:/Users/User/Brain_MRI_Segmentation/model/unet_11.pth"
+    BATCH_SIZE = 4
+    EPOCHS = 5
+    DATA_PATH = "dataset"
+    TRAINING_PATH = os.path.join(DATA_PATH, "training")
+    VALIDATION_PATH = os.path.join(DATA_PATH, "validation")
+
+    MODEL_SAVE_PATH = "model/prova.pth"
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    dataset = FLAIRDataset(DATA_PATH)
+    train_dataset = FLAIRDataset(TRAINING_PATH)
+    val_dataset = FLAIRDataset(VALIDATION_PATH)
 
-    generator = torch.Generator().manual_seed(42)
-    train_dataset, val_dataset = random_split(dataset, [0.8, 0.2], generator=generator)
-
-    train_dataloader = DataLoader(dataset = train_dataset, batch_size = BATCH_SIZE, shuffle = True)
-    val_dataloader = DataLoader(dataset = val_dataset, batch_size = BATCH_SIZE, shuffle = True)
+    train_dataloader = DataLoader(dataset = train_dataset, batch_size = BATCH_SIZE, shuffle = True, drop_last=True)
+    val_dataloader = DataLoader(dataset = val_dataset, batch_size = BATCH_SIZE, shuffle = True, drop_last=True)
 
     model = UNet(in_channels=1, num_classes=1).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
