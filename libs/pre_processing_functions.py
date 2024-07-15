@@ -107,6 +107,7 @@ def pre_processing(sitk_image):
         An Torch tensor of size (1, 256, 256) representing the scan, with gray levels
         normalized in the range [0, 1]. 
     """
+    adjust_image_spacing(sitk_image)
     image_array = sitk.GetArrayFromImage(sitk_image)
     
     processed_image = normalize_gray_levels(image_array)
