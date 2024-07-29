@@ -37,7 +37,10 @@ def recall_score(ground_truth, pred_mask):
     """
     intersect = np.sum(pred_mask*ground_truth)
     total_pixel_truth = np.sum(ground_truth)
-    recall = np.mean(intersect/total_pixel_truth)
+    if total_pixel_truth == 0:
+        recall = 0
+    else:
+        recall = np.mean(intersect/total_pixel_truth)
 
     return round(recall, 3)
 
@@ -76,7 +79,10 @@ def jaccard_index(ground_truth, pred_mask):
     """
     intersect = np.sum(pred_mask*ground_truth)
     union = np.sum(pred_mask) + np.sum(ground_truth) - intersect
-    jaccard_coeff = np.mean(intersect/union)
+    if union == 0:
+        jaccard_coeff = 0
+    else:
+        jaccard_coeff = np.mean(intersect/union)
 
     return round(jaccard_coeff, 3)
 
@@ -95,6 +101,9 @@ def dice_coeff(ground_truth, pred_mask):
     """
     intersect = np.sum(pred_mask*ground_truth)
     union = np.sum(pred_mask) + np.sum(ground_truth)
-    dice_coeff = (2. * intersect) / union
+    if union == 0:
+        dice_coeff = 0
+    else:
+        dice_coeff = (2. * intersect) / union
 
     return round(dice_coeff, 3)
