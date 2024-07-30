@@ -25,7 +25,7 @@ This project provides a U-Net model[1] for segmenting such lesions in brain FLAI
 
 <a href="https://github.com/SimoneSantoro21/Brain_MRI_Segmentation/blob/main/images/example_result.png">
   <div class="image">
-    <img src="images\example_result.png" width="800" height="200">
+    <img src="images\example_result.png" width="100%">
   </div>
 </a>
 
