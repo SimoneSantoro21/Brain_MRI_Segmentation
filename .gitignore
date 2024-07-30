@@ -3,12 +3,22 @@ data/
 data_BACKUP/
 org_data/
 selected_data/
+data_raw/
+dataset/
+test_dataset/
+Brain MRI Dataset of Multiple Sclerosis with Consensus Manual Lesion Segmentation and Patient Meta Information/
+dataset_pattern/
 
 #model
 model/
 
+#predictions
+predictions/
+
 #wandb directory
 wandb/
+training_log.csv
+val_log.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -214,3 +224,5 @@ latex.out/
 #*.nav  # beamer
 #*.run.xml # biber
 #*.blg  # biblatex
+
+prova.ipynb
