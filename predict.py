@@ -5,6 +5,7 @@ import SimpleITK as sitk
 import os
 import argparse
 
+from PIL import Image
 from libs.U_Net import UNet
 from libs.pre_processing_functions import pre_processing
 
@@ -71,6 +72,7 @@ def prediction(image_path, mask_path, model_path, index, threshold_value=0.5, pl
 
     image_raw = sitk.ReadImage(image_path)
     image = pre_processing(image_raw)
+    image = image.float()
 
     mask_sitk = sitk.ReadImage(mask_path)
     mask_tensor = pre_processing(mask_sitk)
@@ -95,7 +97,9 @@ def prediction(image_path, mask_path, model_path, index, threshold_value=0.5, pl
     # Saving mean and variance output 
     subdirectory = os.path.join("predictions", f"Prediction_index-{index}")
     os.makedirs(subdirectory, exist_ok=True)
-    plt.imsave(os.path.join(subdirectory, "mean_prediction.png"), mean_prediction, cmap='grey')
+    mean_prediction_scaled = (mean_prediction * 255).astype(np.uint8)
+    img = Image.fromarray(mean_prediction_scaled, mode='L')  # 'L' is for grayscale
+    img.save(os.path.join(subdirectory, "mean_prediction.png"))
     plt.imsave(os.path.join(subdirectory, "variance_prediction.png"), variance_prediction, cmap='hot')
 
     if plot:
@@ -134,7 +138,7 @@ if __name__ == "__main__":
 
     DATA_PATH = args.input
     FLAIR_PATH = os.path.join(DATA_PATH, "FLAIR")
-    LESION_PATH = os.path.join(DATA_PATH, "LESION_1")
+    LESION_PATH = os.path.join(DATA_PATH, "LESION")
 
     IMAGE_PATH = os.path.join(FLAIR_PATH, f"FLAIR_{args.index}.nii")
     MASK_PATH = os.path.join(LESION_PATH, f"LESION_{args.index}.nii")
