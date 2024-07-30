@@ -4,6 +4,25 @@ import numpy as np
 import random
 
 
+def rename_files(main_folder_path):
+    # Iterate through each patient folder
+    for patient_folder in os.listdir(main_folder_path):
+        patient_folder_path = os.path.join(main_folder_path, patient_folder)
+        
+        if os.path.isdir(patient_folder_path):
+            for filename in os.listdir(patient_folder_path):
+                # Check if the file is either Flair or LesionSeg-Flair
+                if filename.endswith('Flair.nii'):
+                    # Split the filename to remove the {patient_index}-
+                    new_filename = '-'.join(filename.split('-')[1:])
+                    old_filepath = os.path.join(patient_folder_path, filename)
+                    new_filepath = os.path.join(patient_folder_path, new_filename)
+                    
+                    # Rename the file
+                    os.rename(old_filepath, new_filepath)
+                    print(f'Renamed {old_filepath} to {new_filepath}')
+
+
 def get_axial_slices(flair_image, lesion_image):
     """
     Extracts and processes axial slices from FLAIR and lesion images containing lesions.
@@ -76,8 +95,8 @@ def count_slices(input_dir, patient_indices):
         patient_path = os.path.join(input_dir, patient_folder)
         if os.path.isdir(patient_path):
             # Construct the paths for FLAIR and LESION files
-            flair_file = os.path.join(patient_path, 'FLAIR_rot.nii')
-            lesion_file = os.path.join(patient_path, 'LESION_rot.nii')
+            flair_file = os.path.join(patient_path, 'Flair.nii')
+            lesion_file = os.path.join(patient_path, 'LesionSeg-Flair.nii')
 
             # Process files
             if os.path.isfile(flair_file) and os.path.isfile(lesion_file):
@@ -158,8 +177,8 @@ def save_dataset(patients, RAW_DATA_PATH, DATA_PATH):
         patient_path = os.path.join(RAW_DATA_PATH, patient_folder)
         if os.path.isdir(patient_path):
             # Construct the paths for FLAIR and LESION files
-            flair_file = os.path.join(patient_path, 'FLAIR_rot.nii')
-            lesion_file = os.path.join(patient_path, 'LESION_rot.nii')
+            flair_file = os.path.join(patient_path, 'Flair.nii')
+            lesion_file = os.path.join(patient_path, 'LesionSeg-Flair.nii')
 
             # Process files
             if os.path.isfile(flair_file) and os.path.isfile(lesion_file):
@@ -187,9 +206,8 @@ def save_dataset(patients, RAW_DATA_PATH, DATA_PATH):
 
 
 if __name__ == '__main__':
-    RAW_DATA_PATH = "data_raw"
-    RAW_TESTING_PATH = "test_dataset"
-    DATA_PATH = "dataset"
+    RAW_DATA_PATH = "Brain MRI Dataset of Multiple Sclerosis with Consensus Manual Lesion Segmentation and Patient Meta Information"
+    DATA_PATH = "dataset_2"
     TRAINING_PATH = os.path.join(DATA_PATH, "training")
     VALIDATION_PATH = os.path.join(DATA_PATH, "validation")
     TESTING_PATH = os.path.join(DATA_PATH, "testing")
@@ -200,8 +218,19 @@ if __name__ == '__main__':
                     35, 49, 9]
     accepted_indexes.sort()
 
-    number_slices = count_slices(RAW_DATA_PATH, accepted_indexes)   #dict containing total filtered slice number per patient
-    train_patients, val_patients = split_patient_data(number_slices, train_fract=0.8)   #train_fract = fraction of imgs to put in traning set
+    #rename_files(RAW_DATA_PATH)
+
+    # Select 3 patients for the test set
+    random.seed(42)
+    test_patients = random.sample(accepted_indexes, 3)
+    test_patients = [f"Patient-{test_patients[0]}", f"Patient-{test_patients[1]}", f"Patient-{test_patients[2]}"]
+    remaining_patients = [index for index in accepted_indexes if index not in test_patients]
+
+    number_slices = count_slices(RAW_DATA_PATH, remaining_patients)
+
+    train_patients, val_patients = split_patient_data(number_slices, train_fract=0.8)
+
+    # Save datasets
     save_dataset(train_patients, RAW_DATA_PATH, TRAINING_PATH)
     save_dataset(val_patients, RAW_DATA_PATH, VALIDATION_PATH)
-    
+    save_dataset(test_patients, RAW_DATA_PATH, TESTING_PATH)
