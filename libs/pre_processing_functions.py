@@ -4,29 +4,6 @@ import numpy as np
 import torch
 
 
-def get_axial_slices(image):
-    """
-    Obtain all the axial slices form a 3D .nii image.
-
-    Args:
-        image: SimpleITK image object
-
-    Returns:
-        A dictionary where the keys are the slice number and the values
-        are np.ndarray containing the images.
-    """
-
-    slices = {}
-    image_oriented = sitk.DICOMOrient(image, 'LPS')
-    image_array = sitk.GetArrayFromImage(image_oriented)
-
-    for slice_index in range(image_oriented.GetDepth()):
-        slice_array = image_array[slice_index]
-        slices[slice_index] = slice_array
-
-    return slices
-
-
 def normalize_gray_levels(image_array):
     """
     Normalize image gray levels between 0 and 1.

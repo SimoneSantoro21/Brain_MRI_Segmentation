@@ -4,34 +4,11 @@ import numpy as np
 import pytest
 import torch
 
-from libs.pre_processing_functions import get_axial_slices
 from libs.pre_processing_functions import normalize_gray_levels
 from libs.pre_processing_functions import resize_image
 from libs.pre_processing_functions import is_binary
 from libs.pre_processing_functions import adjust_image_spacing
 from libs.pre_processing_functions import pre_processing
-
-def test_get_axial_slices():
-    """
-    Testing that the function get_axial_slices() output is correct.
-
-    GIVEN: a SimpleITK image object
-    WHEN: I pass it to the get_axial_slices() function
-    THEN: The output is a dictionary containing np.ndarrays of the single slices
-    """
-    random.seed(10)
-    
-    for i in range(10): 
-        test_image_width = int(random.uniform(1, 10))
-        test_image_height = int(random.uniform(1, 10))
-        test_image_depth = int(random.uniform(1, 10))
-        test_image = sitk.Image(test_image_width, test_image_height, test_image_depth, sitk.sitkUInt8)
-        
-        slices = get_axial_slices(test_image)
-
-        assert isinstance(slices, dict)
-        assert isinstance(slices[0], np.ndarray)
-        assert len(slices) == test_image_depth
         
 
 def test_normalize_image():
