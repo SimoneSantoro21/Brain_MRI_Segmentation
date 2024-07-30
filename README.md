@@ -1,10 +1,10 @@
 # Brain_MRI_Segmentation
-This reposiory contains code and documentation relative to the Software and Computing & Pattern Recognition exams of the Applied Physics curriculum of Physics Master degree at UniBo.
+This repository contains code and documentation relative to the Software and Computing & Pattern Recognition exams of the Applied Physics curriculum of Physics Master degree at UniBo.
 
 - [Brain MRI Segmentation](#Brain_MRI_Segmentation)
   - [Overview](#overview)
   - [Contents](#contents)
-  - [Pre-requisites](#prerequisites)
+  - [Pre-requisites](#pre-requisites)
   - [Tutorial](#tutorial)
     - [Installing](#installing)
     - [Testing](#testing)
@@ -108,7 +108,7 @@ The dataset is structured into 60 patient-specific directories, each containing:
 After downloading and extracting the dataset into the project's directory, execute the prepare_dataset script by using:
 
 ```bash
-python -m prepare_dataset.py
+python -m prepare_dataset
 ```
 This script will organize the data into a "dataset" directory suitable for the subsequent tutorial steps.
 
@@ -116,7 +116,7 @@ This script will organize the data into a "dataset" directory suitable for the s
 Once the dataset is well organized, it is possible to train the model by using the training script. Is is required to specify the dataset path and the model save path with the following command:
 
 ```bash
-python -m training.py --input "dataset" --output "model/unet.pth"
+python -m training --input "dataset" --output "model/unet.pth"
 ```
 
 The following training parameters can also be specified:
