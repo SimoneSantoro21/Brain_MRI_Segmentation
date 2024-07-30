@@ -95,7 +95,7 @@ def prediction(image_path, mask_path, model_path, index, threshold_value=0.5, pl
     # Saving mean and variance output 
     subdirectory = os.path.join("predictions", f"Prediction_index-{index}")
     os.makedirs(subdirectory, exist_ok=True)
-    plt.imsave(os.path.join(subdirectory, "mean_prediction.png"), mean_prediction, cmap='hot')
+    plt.imsave(os.path.join(subdirectory, "mean_prediction.png"), mean_prediction, cmap='grey')
     plt.imsave(os.path.join(subdirectory, "variance_prediction.png"), variance_prediction, cmap='hot')
 
     if plot:
