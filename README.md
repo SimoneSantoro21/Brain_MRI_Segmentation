@@ -19,9 +19,9 @@ Fluid-attenuated inversion recovery (FLAIR) MRI can be used in the detection of 
 
 Accurate segmentation of MS lesions is essential for both diagnosis and research purposes. In diagnosis and monitoring, precise identification and measurement of lesions aid in diagnosing and tracking its progression. In research, high-quality segmentation is crucial for studies aiming to understand the pathophysiology of MS and develop new therapeutic approaches.
 
-This project provides a U-Net model[1] for segmenting such lesions in brain FLAIR MRI scans, converted to a Bayesian approximation[2] by exploiting dropout layers. This approach, allowed us to not only obtain the model prediction, but to be able to associate it with an uncertainty measure as well.
+This project provides a U-Net model[1] for segmenting such lesions in brain FLAIR MRI scans, converted to a Bayesian approximation[2] by exploiting dropout layers. This approach, allowed to not only obtain the model prediction, but to be able to associate it with an uncertainty measure as well.
 
-**Example of segmentation**. **Left:** Original image with ground truth: **Center:** Original image with predicted lesions. **Right** Original image with uncertainty.
+**Example of segmentation**. **Left:** Original image with ground truth. **Center:** Original image with predicted lesions. **Right** Original image with uncertainty.
 
 <a href="https://github.com/SimoneSantoro21/Brain_MRI_Segmentation/blob/main/images/example_result.png">
   <div class="image">
@@ -60,7 +60,7 @@ To be able to make the model work is mandatory to install PyTorch. For installin
 
 https://pytorch.org/get-started/locally/.
 
-For what concernes other libraries, they can be inspected in [requirements.txt](https://github.com/SimoneSantoro21/Brain_MRI_Segmentation/blob/main/requirements.txt). My advice is to create a Conda environment in which to install PyTorch and the other libraries, that can be installed by activating the environment and running
+For what concernes other libraries, they can be inspected in [requirements.txt](https://github.com/SimoneSantoro21/Brain_MRI_Segmentation/blob/main/requirements.txt). It is convenient to create a Conda environment in which to install PyTorch and the other libraries, that can be installed by activating the environment and running
 
 ```bash
 conda install requirements.txt
@@ -125,7 +125,7 @@ The following training parameters can also be specified:
 - batch size (--batch): default value 8
 
 ### Prediction
-For prediction, the user trained model as well as the pre-trained one can be used by using predict.py. Let's say that we are interested in predicting lesions in the image FLAIR_5 of the testing dataset, then the command should be the following:
+For prediction, the user trained model as well as the pre-trained one can be used by running predict.py. Let's say that we are interested in predicting lesions in the image FLAIR_5 of the testing dataset, then the command should be the following:
 
 ```bash
 python -m predict --input "dataset/testing" --index 5 --model "model/unet.pth"
