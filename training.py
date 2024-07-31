@@ -48,12 +48,12 @@ def arg_parser():
     
     parser.add_argument('--lr',
                         type=float,
-                        default=5e-3,
+                        default=5e-4,
                         help='Model learning rate')
     
     parser.add_argument('--epochs',
                         type=int,
-                        default=2,
+                        default=50,
                         help='Number of training epochs')
     
     parser.add_argument('--batch',
