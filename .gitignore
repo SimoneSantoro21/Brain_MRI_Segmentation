@@ -10,7 +10,7 @@ Brain MRI Dataset of Multiple Sclerosis with Consensus Manual Lesion Segmentatio
 dataset_pattern/
 
 #model
-model/
+models/
 
 #predictions
 predictions/
