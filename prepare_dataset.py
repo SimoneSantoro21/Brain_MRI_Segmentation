@@ -3,16 +3,62 @@ import SimpleITK as sitk
 import numpy as np
 import random
 
+#    THIS SCRIPT IS ONLY IMPLEMENTED FOR TUTORIAL PURPOSES, IT PREPARES ONLY THE DATASET
+#    PROVIDED IN THE TUTORIAL SECTION. IT CAN, HOWEVER, PROVIDE AN EXAMPLE TO USERS
+#    WHO AIM TO WRITE A SCRIPT TO PREPARE THEIR OWN DATA.
+
+def rotate_image(sitk_image):
+    """
+    Rotates a 2D SimpleITK image by 90 degrees clockwise.
+
+    Args:
+        image (SimpleITK.Image): The 2D image to rotate.
+
+    Returns:
+        SimpleITK.Image: The rotated image.
+    """
+    array = sitk.GetArrayFromImage(sitk_image)
+    rotated_array = np.rot90(array, k=-1)  # Rotate 90 degrees clockwise
+    rotated_image = sitk.GetImageFromArray(rotated_array)
+    
+    # Manually set the metadata for the rotated image
+    original_spacing = list(sitk_image.GetSpacing())
+    original_origin = list(sitk_image.GetOrigin())
+    original_direction = list(sitk_image.GetDirection())
+
+    # Swap the dimensions for spacing, and origin
+    rotated_spacing = [original_spacing[1], original_spacing[0]]
+    rotated_origin = [original_origin[1], original_origin[0]]
+
+    # Adjust direction cosines for 2D rotation
+    rotated_direction = [
+        original_direction[1], -original_direction[0],
+        -original_direction[3], original_direction[2]
+    ]
+
+    rotated_image.SetSpacing(rotated_spacing)
+    rotated_image.SetOrigin(rotated_origin)
+    rotated_image.SetDirection(rotated_direction)
+    
+    return rotated_image
+
 
 def rename_files(main_folder_path):
-    # Iterate through each patient folder
+    """
+    Renames raw flair and lesion files by removing the "{index}-" prefix
+
+    Args: 
+        - main_folder_path (str): path to raw dataset
+
+    Returns:
+        None
+    """
     for patient_folder in os.listdir(main_folder_path):
         patient_folder_path = os.path.join(main_folder_path, patient_folder)
         
         if os.path.isdir(patient_folder_path):
             for filename in os.listdir(patient_folder_path):
-                # Check if the file is either Flair or LesionSeg-Flair
-                if filename.endswith('Flair.nii'):
+                if filename.endswith('Flair.nii') and '-' in filename:
                     # Split the filename to remove the {patient_index}-
                     new_filename = '-'.join(filename.split('-')[1:])
                     old_filepath = os.path.join(patient_folder_path, filename)
@@ -21,6 +67,8 @@ def rename_files(main_folder_path):
                     # Rename the file
                     os.rename(old_filepath, new_filepath)
                     print(f'Renamed {old_filepath} to {new_filepath}')
+                else: break
+    return None
 
 
 def get_axial_slices(flair_image, lesion_image):
@@ -189,15 +237,19 @@ def save_dataset(patients, RAW_DATA_PATH, DATA_PATH):
                 lesion_slices = slices[1]
                 
                 for slice_index in range(len(flair_slices)):
+                    # Rotate slices
+                    flair_slice_rotated = rotate_image(flair_slices[slice_index])
+                    lesion_slice_rotated = rotate_image(lesion_slices[slice_index])
+
+                    # Save rotated slices
                     flair_save_path = os.path.join(flair_dir, f'FLAIR_{slice_index + renaming_index}.nii')
-                    flair_slice = flair_slices[slice_index]
-                    sitk.WriteImage(flair_slice, flair_save_path)
+                    sitk.WriteImage(flair_slice_rotated, flair_save_path)
                     print(f'Saved {flair_save_path}')
 
                     lesion_save_path = os.path.join(lesion_dir, f'LESION_{slice_index + renaming_index}.nii')
-                    lesion_slice = lesion_slices[slice_index]
-                    sitk.WriteImage(lesion_slice, lesion_save_path)
+                    sitk.WriteImage(lesion_slice_rotated, lesion_save_path)
                     print(f'Saved {lesion_save_path}')
+                    
                 renaming_index += slice_index + 1
         else:
             print(f'Patient folder {patient_folder} does not exist')
@@ -207,7 +259,7 @@ def save_dataset(patients, RAW_DATA_PATH, DATA_PATH):
 
 if __name__ == '__main__':
     RAW_DATA_PATH = "Brain MRI Dataset of Multiple Sclerosis with Consensus Manual Lesion Segmentation and Patient Meta Information"
-    DATA_PATH = "dataset_2"
+    DATA_PATH = "dataset"
     TRAINING_PATH = os.path.join(DATA_PATH, "training")
     VALIDATION_PATH = os.path.join(DATA_PATH, "validation")
     TESTING_PATH = os.path.join(DATA_PATH, "testing")
@@ -218,7 +270,7 @@ if __name__ == '__main__':
                     35, 49, 9]
     accepted_indexes.sort()
 
-    #rename_files(RAW_DATA_PATH)
+    rename_files(RAW_DATA_PATH)
 
     # Select 3 patients for the test set
     random.seed(42)
