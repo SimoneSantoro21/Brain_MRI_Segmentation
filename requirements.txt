@@ -4,4 +4,3 @@ pillow
 tqdm
 OpenCV
 pytest
-csv

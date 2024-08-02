@@ -8,7 +8,7 @@ This repository contains code and documentation relative to the Software and Com
     - [Pre-requisites](#pre-requisites)
     - [Testing](#testing)
   - [Tutorial](#tutorial)
-    - [Testing](#testing)
+    - [Download and prepare data](#download-and-prepare-data)
     - [Training](#training)
     - [Prediction](#prediction)
     - [Evaluation](#evaluation)
@@ -94,10 +94,11 @@ It is possibe to execute all the tests by using:
 ```bash
 python -m pytest
 ```
+**NOTE**: Two of the tests rely on the data structure to test the Dataset implementation!! Those will fail unless the user prepares a dataset according to the Tutorial section instructions.
 
 ## Tutorial
 
-### Download and prepare data
+### Download and prepare data <a id="download-and-prepare-data"></a>
 The model expects the input dataset directory to be organized as follows: 
 - dataset
     - Training
