@@ -23,7 +23,7 @@ def test_init_missing_data():
         pass
 
 
-def test_len_dataset(data_dir = "org_data"):
+def test_len_dataset(data_dir = "dataset/training"):
     """
     Tests that the length of the dataset matches the number of scans contained
     in both the FLAIR and LESION subdirectories.
@@ -43,7 +43,7 @@ def test_len_dataset(data_dir = "org_data"):
     assert len(dataset) == len(lesion_scans)
 
 
-def test_getitem_output(data_dir="org_data"):
+def test_getitem_output(data_dir="dataset/training"):
     """
     Tests that the __getitem__ method returns a tuple containing FLAIR and LESION data 
     for the requested slice (index). 
