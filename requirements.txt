@@ -1,4 +1,7 @@
 numpy
 matplotlib
-SimpleITK
 pillow
+tqdm
+OpenCV
+pytest
+csv
