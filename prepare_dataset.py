@@ -2,10 +2,29 @@ import os
 import SimpleITK as sitk
 import numpy as np
 import random
+import argparse
+
 
 #    THIS SCRIPT IS ONLY IMPLEMENTED FOR TUTORIAL PURPOSES, IT PREPARES ONLY THE DATASET
 #    PROVIDED IN THE TUTORIAL SECTION. IT CAN, HOWEVER, PROVIDE AN EXAMPLE TO USERS
 #    WHO AIM TO WRITE A SCRIPT TO PREPARE THEIR OWN DATA.
+
+def arg_parser():
+    description = 'Bayesian U-Net training'
+    parser = argparse.ArgumentParser(description=description)
+
+    parser.add_argument('--input',
+                        required=True,
+                        type=str,
+                        help='Path of the raw data directory')
+    
+    parser.add_argument('--output',
+                        required=True,
+                        type=str,
+                        help='Saving Path of the prepared data')
+    
+    args = parser.parse_args()
+    return args
 
 def rotate_image(sitk_image):
     """
@@ -258,8 +277,11 @@ def save_dataset(patients, RAW_DATA_PATH, DATA_PATH):
 
 
 if __name__ == '__main__':
-    RAW_DATA_PATH = "Brain MRI Dataset of Multiple Sclerosis with Consensus Manual Lesion Segmentation and Patient Meta Information"
-    DATA_PATH = "dataset"
+    args = arg_parser()
+
+    RAW_DATA_PATH = arg_parser.input
+    DATA_PATH = arg_parser.output
+    
     TRAINING_PATH = os.path.join(DATA_PATH, "training")
     VALIDATION_PATH = os.path.join(DATA_PATH, "validation")
     TESTING_PATH = os.path.join(DATA_PATH, "testing")

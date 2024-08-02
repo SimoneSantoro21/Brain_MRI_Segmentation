@@ -115,10 +115,10 @@ The dataset is structured into 60 patient-specific directories, each containing:
 - Flair.nii: A 3D NIfTI-formatted MRI scan in FLAIR modality.
 - LesionSeg-Flair.nii: A corresponding 3D NIfTI image with lesion segmentation masks derived from the FLAIR scan.
 
-After downloading and extracting the dataset into the project's directory, execute the prepare_dataset script by using:
+After downloading and extracting the raw dataset into the project's directory, execute the prepare_dataset script by using:
 
 ```bash
-python -m prepare_dataset
+python -m prepare_dataset --input "PATH/TO/RAW/DATASET" --output "dataset"
 ```
 This script will organize the data into a "dataset" directory suitable for the subsequent tutorial steps.
 
@@ -176,7 +176,7 @@ The output will be similar to:
 | Jaccard Index     | 0.466|
 | Dice coefficient  | 0.636|
 
-After that, a evaluation_metrics.csv file will be saved in the same directory in which prediction outputs are stored.
+After that, an "evaluation_metrics.csv" file will be saved in the same directory in which prediction outputs are stored.
 
 
 ## References
