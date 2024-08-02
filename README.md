@@ -4,9 +4,10 @@ This repository contains code and documentation relative to the Software and Com
 - [Brain MRI Segmentation](#Brain_MRI_Segmentation)
   - [Overview](#overview)
   - [Contents](#contents)
-  - [Pre-requisites](#pre-requisites)
+  - [Installing](#installing)
+    - [Pre-requisites](#pre-requisites)
+    - [Testing](#testing)
   - [Tutorial](#tutorial)
-    - [Installing](#installing)
     - [Testing](#testing)
     - [Training](#training)
     - [Prediction](#prediction)
@@ -41,7 +42,7 @@ Script description:
 | [prepare_dataset](https://github.com/SimoneSantoro21/Brain_MRI_Segmentation/blob/main/prepare_dataset.py) | Organizes patient data by extracting axial slices and saving them in training, validation and testing directories. This sript is ONLY intended to be used to prepare tutorial dataset|
 | [training](https://github.com/SimoneSantoro21/Brain_MRI_Segmentation/blob/main/training.py) | Performs model training with specified data directory, model save path, learning rate, epochs and batch size|
 | [predict](https://github.com/SimoneSantoro21/Brain_MRI_Segmentation/blob/main/predict.py) |Performs inference on an input image, showing the output image and variance along the original image with ground truth and saving the results in a "predictions" directory|
-| [evaluate](https://github.com/SimoneSantoro21/Brain_MRI_Segmentation/blob/main/evaluate.py) |Evaluates prediction quality by computing metrics implemented in evaluation_metrics.py|
+| [evaluate](https://github.com/SimoneSantoro21/Brain_MRI_Segmentation/blob/main/evaluate.py) |Evaluates prediction quality by computing metrics implemented in evaluation_metrics.py, saving the results in a .csv file|
 
 
 Modules description:
@@ -55,31 +56,37 @@ Modules description:
 | [U_Net](https://github.com/SimoneSantoro21/Brain_MRI_Segmentation/blob/main/libs/U_Net.py) |Contais the actual model, built by putting toghether the single components| 
 | [focal](https://github.com/SimoneSantoro21/Brain_MRI_Segmentation/blob/main/libs/focal.py) |Class for the PyTorch implementation of the focal loss function[3]
 
-## Pre-requisites
-To be able to make the model work is mandatory to install PyTorch. For installing PyTorch, please refere to the original documentation at:
 
-https://pytorch.org/get-started/locally/.
-
-For what concernes other libraries, they can be inspected in [requirements.txt](https://github.com/SimoneSantoro21/Brain_MRI_Segmentation/blob/main/requirements.txt). It is convenient to create a Conda environment in which to install PyTorch and the other libraries, that can be installed by activating the environment and running
-
-```bash
-conda install requirements.txt
-```
-
-## Tutorial
-
-
-### Installing
+## Installing
 For installing the software, the user needs to clone this repository:
 
 ```bash
 git clone https://github.com/SimoneSantoro21/Brain_MRI_Segmentation
 ```
 
+### Pre-requisites
+To be able to make the model run is mandatory to install PyTorch. For installing PyTorch, please refere to the original documentation at:
+
+https://pytorch.org/get-started/locally/.
+
+For what concernes other libraries, they can be inspected in [requirements.txt](https://github.com/SimoneSantoro21/Brain_MRI_Segmentation/blob/main/requirements.txt). It is convenient to create a Conda environment in which to install PyTorch and the other libraries, that can be installed by activating the environment and running
+
+```bash
+cd Brain_MRI_Segmentation
+conda install --yes --file requirements.txt
+```
+
+Input images are opened by using SimpleITK, that can be installed by using pip:
+
+```bash
+pip install SimpleITK
+```
+
+Futher informations about SimpleITK installation can be found at: https://simpleitk.readthedocs.io/en/v1.2.4/Documentation/docs/source/installation.html
+
 ### Testing
 
-Testing routines use ```PyTest``` that needs to be installed
- to perform the test.
+Testing routines use ```PyTest```.
 
 A full set of test is provided in [testing](https://github.com/SimoneSantoro21/Brain_MRI_Segmentation/tree/main/test) directory.
 It is possibe to execute all the tests by using:
@@ -87,7 +94,10 @@ It is possibe to execute all the tests by using:
 ```bash
 python -m pytest
 ```
-### Organizing data
+
+## Tutorial
+
+### Download and prepare data
 The model expects the input dataset directory to be organized as follows: 
 - dataset
     - Training
@@ -120,9 +130,11 @@ python -m training --input "dataset" --output "model/unet.pth"
 ```
 
 The following training parameters can also be specified:
-- Learning rate (--lr): default value 5e^-3
+- Learning rate (--lr): default value 5e^-4
 - epochs (--epochs): default value 100
 - batch size (--batch): default value 8
+
+It is strongly suggested to train the model on GPU, if the user's device is CPU then it could be better to lower the epochs parameter to 10 or 20, or simply to use the pre-trained model.
 
 ### Prediction
 For prediction, the user trained model as well as the pre-trained one can be used by running predict.py. Let's say that we are interested in predicting lesions in the image FLAIR_5 of the testing dataset, then the command should be the following:
@@ -130,14 +142,21 @@ For prediction, the user trained model as well as the pre-trained one can be use
 ```bash
 python -m predict --input "dataset/testing" --index 5 --model "model/unet.pth"
 ```
+
+Or, using the pre-trained model:
+
+```bash
+python -m predict --input "dataset/testing" --index 5 --model "model/pre_trained.pth"
+```
+
 The following parameters can also be specified:
 - Threshold (--threshold): default value 0.5
 - Plot (--plot): default value True
 - Forward (--forward): default value 50
 
 After running the command, a directory named "predictions" will be created, with a sub-directory named "Prediction_index-5" containing the following images in .png format:
-- comparison: Image showing the comparison between ground truth and prediction, along variance
-- mean_prediction: Binary prediction output
+- comparison: Image showing the ground truth, prediction and variance;
+- mean_prediction: Binary prediction output;
 - variance_prediction: Variance output in 'hot' color map.
 
 ### Evaluation
@@ -147,15 +166,17 @@ After the prediction, it is now possible to evaluate the model performance by ru
 python -m evaluate --index 5
 ```
 
-The output will be similar to
+The output will be similar to:
 
 | Metric            | Value      |
 |-------------------|-------------|
-| Precision score   | 0.721 |
-| Recall score      | 0.660    |
-| Accuracy          | 0.997     |
-| Jaccard Index     | 0.526  |
-| Dice coefficient  | 0.689   |
+| Precision score   | 0.862|
+| Recall score      | 0.504|
+| Accuracy          | 0.997|
+| Jaccard Index     | 0.466|
+| Dice coefficient  | 0.636|
+
+After that, a evaluation_metrics.csv file will be saved in the same directory in which prediction outputs are stored.
 
 
 ## References
