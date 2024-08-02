@@ -1,7 +1,4 @@
 import os
-import random
-import SimpleITK as sitk
-import torch
 
 from libs.dataset import FLAIRDataset
 
