@@ -1,6 +1,7 @@
 import SimpleITK as sitk
 import os
 import argparse
+import csv
 
 from libs.pre_processing_functions import pre_processing
 from libs.evaluation_metrics import precision_score
@@ -57,26 +58,53 @@ def evaluate(image_path, gr_truth_path):
     return evaluated_metrics
 
 
-if __name__ == "__main__":
-    DATA_PATH = "dataset/testing"
-    PRED_PATH = "predictions"
-    LESION_PATH = os.path.join(DATA_PATH, "LESION")
+def save_metrics_to_csv(metrics, csv_path):
+    """
+    Saves the evaluation metrics to a CSV file.
 
+    Args:
+        metrics (dict): A dictionary containing the evaluation metrics.
+        csv_path (str): Path to the CSV file where the metrics will be saved.
+    
+        Returns:
+            None
+    """
+    csv_file = os.path.join(csv_path, "evaluation_metrics.csv")
+    
+    with open(csv_file, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(metrics.keys())
+        writer.writerow(metrics.values())
+    print(f"Metrics saved to {csv_file}")
+
+    return None
+
+
+if __name__ == "__main__":
     args = arg_parser()
     index = args.index
-    IMAGE_PATH = os.path.join(PRED_PATH, f"Prediction_index-{index}", "mean_prediction.png")
+
+    DATA_PATH = "dataset/testing"
+    PRED_PATH = f"predictions/Prediction_index-{index}"
+    LESION_PATH = os.path.join(DATA_PATH, "LESION")
+
+    IMAGE_PATH = os.path.join(PRED_PATH, "mean_prediction.png")
     MASK_PATH = os.path.join(LESION_PATH, f"LESION_{index}.nii")
 
     metrics1 = evaluate(IMAGE_PATH, MASK_PATH)
 
-print("METRICS FOR PREDICTION VS GROUND TRUTH")
-print("| Metric            | Value      |")  
-print("|-------------------|-------------|")
-print(f"| Precision score   | {metrics1['precision']:.3f}|")
-print(f"| Recall score      | {metrics1['recall']:.3f}|")
-print(f"| Accuracy          | {metrics1['acc']:.3f}|")
-print(f"| Jaccard Index     | {metrics1['jaccard']:.3f}|")
-print(f"| Dice coefficient  | {metrics1['dice']:.3f}|")
+    print("METRICS FOR PREDICTION VS GROUND TRUTH")
+    print("| Metric            | Value      |")  
+    print("|-------------------|-------------|")
+    print(f"| Precision score   | {metrics1['precision']:.3f}|")
+    print(f"| Recall score      | {metrics1['recall']:.3f}|")
+    print(f"| Accuracy          | {metrics1['acc']:.3f}|")
+    print(f"| Jaccard Index     | {metrics1['jaccard']:.3f}|")
+    print(f"| Dice coefficient  | {metrics1['dice']:.3f}|")
+
+    save_metrics_to_csv(metrics1, PRED_PATH)
+
+
 
 
 
